@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings, LogOut } from "lucide-react";
+import { Home, Settings, LogOut, IndianRupee } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import Image from "next/image";
 
 const Sidebar = () => {
+  const { data : session , status } = useSession();
   const pathname = usePathname();
 
   return (
@@ -15,6 +17,11 @@ const Sidebar = () => {
       <nav className="flex-1">
         <ul>
           <li>
+          {
+            status === "authenticated" && <Image className="m-2 rounded-full" src = {session?.user?.image} width={40} height={20} alt="profile image" />
+          }
+          </li>
+          <li>
             <Link
               href="/dashboard"
               className={`flex items-center gap-2 px-4 py-2 rounded-md ${
@@ -22,6 +29,18 @@ const Sidebar = () => {
               }`}
             >
               <Home className="w-5 h-5" /> Home
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/dashboard/viewexpense"
+              className={`flex items-center gap-2 px-4 py-2 rounded-md ${
+                pathname === "/dashboard/expense"
+                  ? "bg-gray-400"
+                  : "hover:bg-gray-600"
+              }`}
+            >
+              <IndianRupee className="w-5 h-5" /> View Expenses
             </Link>
           </li>
           <li>
