@@ -30,7 +30,7 @@ const Page = () => {
       alert(status.error);
     }
     else{ 
-      router.push("/");
+      router.push("/dashboard");
     } 
   };
   return (

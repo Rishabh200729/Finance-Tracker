@@ -25,7 +25,7 @@ const Page = () => {
     const status = await loginUser(email, password);
     console.log("Login status:", status);
     if (status.success) {
-      router.push("/");
+      router.push("/dashboard");
     } else {
       alert("Invalid email or password.");
     }
