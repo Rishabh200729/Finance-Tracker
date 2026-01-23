@@ -1,18 +1,22 @@
 "use client";
 import { ReceiptIndianRupee, Router } from "lucide-react";
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { User } from "../../models/models";
 import { useRouter } from "next/navigation";
+import { registerUser } from "@/actions/register";
 
 const Page = () => {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [showLogin, setShowLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUserName] = useState("");
 
-  const handleLogin = () => {
-    // Dummy authentication logic
+  const handleRegister = async (e : FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (username === "") {
+      alert("Please enter your name.");
+      return;
+    }
     if (email === "") {
       alert("Please enter your email.");
       return;
@@ -21,21 +25,13 @@ const Page = () => {
       alert("Please enter your password.");
       return;
     }
-    const dummyUser: User = {
-      id: 1,
-      name: "John Doe",
-      email: email,
-    };
-    setUser(dummyUser);
-    localStorage.setItem("current-user", JSON.stringify(dummyUser));
-  };
-  const handleKeyPress = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    action: () => void,
-  ) => {
-    if (e.key === "Enter") {
-      action();
+    const status = await registerUser(username, email, password);
+    if(status.error){
+      alert(status.error);
     }
+    else{ 
+      router.push("/");
+    } 
   };
   return (
     <div className=" min-h-screen flex items-center justify-center  rounded-2xl">
@@ -46,13 +42,14 @@ const Page = () => {
           <p className="text-gray-600 mt-2">Manage your money wisely</p>
         </div>
 
-        {showLogin && (
-          <div className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Name
               </label>
               <input
+                value={username}
+                onChange={(e) => setUserName(e.target.value)}
                 type="text"
                 name="name"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
@@ -66,7 +63,6 @@ const Page = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onKeyPress={(e) => handleKeyPress(e, handleLogin)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
               />
             </div>
@@ -77,13 +73,11 @@ const Page = () => {
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onKeyPress={(e) => handleKeyPress(e, handleLogin)}
+                onChange={(e)=> setPassword(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
               />
             </div>
             <button
-              onClick={handleLogin}
               className="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition"
             >
               Register
@@ -97,8 +91,7 @@ const Page = () => {
                 Login
               </button>
             </p>
-          </div>
-        )}
+          </form>
       </div>
     </div>
   );

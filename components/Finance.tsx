@@ -14,13 +14,11 @@ import {
 } from "lucide-react";
 import { User, Transaction, Budgets } from "../models/models";
 import { loadCurrentUser } from "../utils/lib";
+import { useRouter } from "next/navigation";
+import { logoutUser } from "@/actions/logout";
 
 const FinanceTracker = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [showLogin, setShowLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
@@ -32,6 +30,7 @@ const FinanceTracker = () => {
   const [newBudgetAmount, setNewBudgetAmount] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const router = useRouter(); 
   const categories = [
     "food",
     "transport",
@@ -63,7 +62,15 @@ const FinanceTracker = () => {
     setLoading(false);
   }, []);
 
-
+  const handleLogout = async() => {
+    const result = await logoutUser();
+    if (result.success) {
+      setUser(null);
+      router.push("/");
+    } else {
+      alert(result.error);
+    }
+  }
   const loadTransactions = (userId: number) => {
     try {
       const result = localStorage.getItem(`transactions:${userId}`);
@@ -110,45 +117,6 @@ const FinanceTracker = () => {
     setEmail("");
     setPassword("");
   };
-
-  const handleLogin = () => {
-    if (!email || !password) {
-      alert("Please fill all fields");
-      return;
-    }
-    try {
-      const result = localStorage.getItem(`user:${email}`);
-      if (result) {
-        const foundUser = JSON.parse(result);
-        if (foundUser.password === password) {
-          const userData = {
-            id: foundUser.id,
-            name: foundUser.name,
-            email: foundUser.email,
-          };
-          setUser(userData);
-          localStorage.setItem("current-user", JSON.stringify(userData));
-          loadTransactions(userData.id);
-          loadBudgets(userData.id);
-        } else {
-          alert("Invalid credentials");
-        }
-      } else {
-        alert("Invalid credentials");
-      }
-    } catch (error) {
-      alert("Invalid credentials");
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("current-user");
-    setUser(null);
-    setTransactions([]);
-    setBudgets({});
-  };
-
-  // --- Core Functionality ---
   const addTransaction = () => {
     if (!description || !amount || !user) {
       alert("Please fill all fields");
@@ -326,13 +294,6 @@ const FinanceTracker = () => {
     ? calculateStats()
     : { income: 0, expenses: 0, balance: 0 };
   const insights = user ? getFinancialInsights() : null;
-
-  // --- Auth View ---
-  if (!user) {
-    return (
-      <>    </>
-    )
-  }
 
   // --- Main Dashboard View ---
   return (
