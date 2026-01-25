@@ -1,4 +1,5 @@
 import {integer, pgTable, varchar, timestamp} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 export const users = pgTable('users', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
@@ -10,7 +11,7 @@ export const users = pgTable('users', {
 
 export const transactions = pgTable('transactions', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    userId: integer('user_id').notNull().references(() => users.id),
+    userId: integer('user_id').notNull().references(() => users.id, {onDelete: 'cascade'}).notNull(),
     amount: integer('amount').notNull(),
     category: varchar('category', {length: 100}).notNull(),
     date: timestamp('date').notNull(),
@@ -19,16 +20,34 @@ export const transactions = pgTable('transactions', {
 
 export const budgets = pgTable('budgets', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    userId: integer('user_id').notNull().references(() => users.id),
+    userId: integer('user_id').notNull().references(() => users.id, {onDelete: 'cascade'}).notNull(),
     category: varchar('category', {length: 100}).notNull(),
     amount: integer('amount').notNull(),
     month: varchar('month', {length: 7}).notNull(), // Format: YYYY-MM
 });
 export const savingsGoals = pgTable('savings_goals', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
-    userId: integer('user_id').notNull().references(() => users.id),
+    userId: integer('user_id').notNull().references(() => users.id, {onDelete: 'cascade'}).notNull(),
     goalName: varchar('goal_name', {length: 255}).notNull(),
     targetAmount: integer('target_amount').notNull(),
     currentAmount: integer('current_amount').notNull().default(0),
     deadline: timestamp('deadline'),
 });
+
+export const userRelations = relations(users, ({ many }) => ({
+    transactions: many(transactions),
+    budgets : many(budgets),
+    savingsGoals: many(savingsGoals),
+}));
+
+export const transactionRelations = relations(transactions, ({one}) => ({
+    user: one(users, { fields: [transactions.userId], references: [users.id] }),
+}));
+
+export const budgetRelations = relations(budgets,({ one }) => ({
+    user: one(users, { fields: [budgets.userId], references: [users.id] }),
+}));
+
+export const savingsGoalRelations = relations(savingsGoals, ({ one }) => ({
+    user: one(users, { fields: [savingsGoals.userId], references: [users.id] }),
+}));

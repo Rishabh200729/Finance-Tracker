@@ -2,8 +2,12 @@
 import React, { useState } from "react";
 import { User, Transaction, Budgets } from "../models/models";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
+import QuickAdd from "./QuickAdd";
+import TopSpendingSection from "./TopSpendingSection";
+import SavingsRateSection from "./SavingsRateSection";
 
-const Dashboard = ({ user }: { user: User | null }) => {
+const Dashboard = ({ user }) => {
+  console.log("USER IS ", user);  
   const [loading, setLoading] = useState(user ? false : true);
 
   if (loading) {
@@ -17,7 +21,7 @@ const Dashboard = ({ user }: { user: User | null }) => {
   }
 
   return (
-    // components/Dashboard.tsx
+    <div>
     <div className="w-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3">
       <div
         className={`rounded-2xl p-6 text-white shadow-lg transition-all ${
@@ -40,7 +44,7 @@ const Dashboard = ({ user }: { user: User | null }) => {
       <div className="rounded-2xl p-6 shadow-sm border border-emerald-100 transition-all bg-gradient-to-br from-green-400 to-emerald-500">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-emerald-100 text-xs font-bold uppercase tracking-wider mb-1">Monthly Income</p>
+              <p className="text-emerald-200 text-xs font-bold uppercase tracking-wider mb-1">Monthly Income</p>
               <h2 className="text-3xl font-bold text-gray-800">+ ₹1</h2>
             </div>
             <div className="bg-emerald-100 p-3 rounded-xl">
@@ -60,7 +64,12 @@ const Dashboard = ({ user }: { user: User | null }) => {
           </div>
         </div>
         </div>
-  );
+        <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <QuickAdd userId={user?.id ?? null} />
+          <TopSpendingSection />
+          <SavingsRateSection />
+        </div>
+    </div>);
 };
 
 export default Dashboard;

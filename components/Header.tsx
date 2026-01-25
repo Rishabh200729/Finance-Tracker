@@ -2,12 +2,14 @@
 import { LogOut, DollarSign, BarChart3, Target, Calendar, LogOutIcon } from "lucide-react";
 import { logoutUser } from "@/actions/logout";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-const Header = ({user}: {user: any}) => {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [isLogginOut, setIsLoggingOut] = useState(false);
+const Header = ({userName}: {userName: string}) => {
   const router = useRouter();
+  const pathName = usePathname();
+  const activeTab = pathName === "/dashboard" ? "dashboard" :  pathName.split("/")[2];
+  const [isLogginOut, setIsLoggingOut] = useState(false);
+  
   // handling logout
   const handleLogout = async (e : React.MouseEvent<HTMLButtonElement>) => {
     setIsLoggingOut(true);
@@ -23,7 +25,6 @@ const Header = ({user}: {user: any}) => {
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const target = e.currentTarget;
     const tab = target.textContent?.toLowerCase() || "dashboard";
-    setActiveTab(tab);
     
     const path = tab === "dashboard" ? "/dashboard" : `/dashboard/${tab}`;
     router.push(path);
@@ -36,7 +37,7 @@ const Header = ({user}: {user: any}) => {
               <h1 className="text-3xl font-bold text-gray-800 tracking-tight">
                 Smart Finance Tracker
               </h1>
-              <p className="text-gray-600">Welcome back, {user?.name}!</p>
+              <p className="text-gray-600">Welcome back, {userName}!</p>
             </div>
             <button
               onClick={handleLogout}

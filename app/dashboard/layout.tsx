@@ -1,21 +1,25 @@
 import Header from "@/components/Header";
-import { getCurrentUser } from "@/utils/lib";
+import { getCurrentSession, getDashBoardData } from "@/utils/lib";
 import { redirect } from "next/navigation";
-
+import { FinanceProvider } from "@/context/FinanceContext";
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
+  const userSession = await getCurrentSession();
 
-  if (!user) {
+  if (!userSession?.id) {
     redirect("/login");
   }
+  const userData = await getDashBoardData(userSession.id);
+  
   return (
+    <FinanceProvider initialData={userData}>
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 min-h-screen">
-      <Header user={user} />
+      <Header userName={userSession.name} />
       <main>{children}</main>
     </div>
+    </FinanceProvider>
   );
 }

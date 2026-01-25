@@ -1,10 +1,11 @@
+'use client';
 import Dashboard from "@/components/Dashboard";
-import { getCurrentUser } from "@/utils/lib";
+import { useFinance } from "@/context/FinanceContext";
 
-const Page = async () => {
-  const user = await getCurrentUser();
-  const userWithStringDate = user ? { ...user, createdAt: user.createdAt.toISOString() } : null;
-  return <Dashboard user={userWithStringDate} />;
+const Page = () => {
+  const user = useFinance();
+  console.log("User from useFinance in dashboard page:", user);
+  return <Dashboard user={user} />;
 }
 
 export default Page;

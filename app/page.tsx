@@ -1,9 +1,9 @@
 import First from '@/components/First';
-import { getCurrentUser } from "@/utils/lib";
+import { getCurrentSession } from "@/utils/lib";
 import { redirect } from "next/navigation";
 
 export default async function Home() {
-  const user = await getCurrentUser();
+  const user = await getCurrentSession();
 
   // If the user is found (logged in), redirect them to the dashboard
   if (user) {

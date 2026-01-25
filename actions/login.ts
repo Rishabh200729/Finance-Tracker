@@ -17,7 +17,7 @@ export async function loginUser( email: string, password: string ) {
         if (!isPasswordValid) {
             return { error: "Invalid password" };
         }
-        const token = jwt.sign({ id: foundUser[0].id }, process.env.JWT_SECRET!, { expiresIn: "1d" });
+        const token = jwt.sign({ id: foundUser[0].id, name : foundUser[0].name }, process.env.JWT_SECRET!, { expiresIn: "1d" });
         cookieStore.set("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", path: "/", maxAge: 24 * 60 * 60 });
         return { success: true };
     }catch(error){

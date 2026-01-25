@@ -15,7 +15,7 @@ export async function registerUser( name : string , email: string, password: str
     }   
     const passwordHash = await bcrypt.hash(password, 10);
     const newUser = await db.insert(users).values({ name ,email, passwordHash }).returning();
-    const token = jwt.sign({ id: newUser[0].id }, process.env.JWT_SECRET!, { expiresIn: "1d" });
+    const token = jwt.sign({ id: newUser[0].id, name : newUser[0].name }, process.env.JWT_SECRET!, { expiresIn: "1d" });
     cookieStore.set("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", path: "/", maxAge: 24 * 60 * 60 });
     return { success: true };
     } catch (error) {
