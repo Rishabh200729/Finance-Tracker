@@ -1,11 +1,22 @@
 'use client'
-import { Search, ArrowUpRight, ArrowDownLeft, Trash2 } from "lucide-react";
+import { Search} from "lucide-react";
 import { useFinance } from "@/context/FinanceContext";
-import React, { useState } from "react";
+import { useState } from "react";
+import deleteTransaction from "@/actions/deleteTransaction";
+import TransactionItem from "@/components/TransactionItem";
 
 const Page = () => {
-  const { transactions } = useFinance();
+  const { transactions, deleteLocalTransaction } = useFinance();
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleDelete = async (id : number) => {
+    const res = await deleteTransaction(id);
+    if(res.success){
+      deleteLocalTransaction(id);
+    }else {
+      alert("Failed to delete transaction");
+    }
+  }
   return (
     <div className="max-w-7xl mx-auto px-4 pb-12">
       {/* Header & Search Section */}
@@ -29,7 +40,6 @@ const Page = () => {
         </div>
       </div>
 
-      {/* Transactions Table */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -61,51 +71,7 @@ const Page = () => {
                       .includes(searchTerm.toLowerCase()),
                   )
                   .map((t) => (
-                    <tr
-                      key={t.id}
-                      className="hover:bg-gray-50/50 transition-colors group"
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`p-2 rounded-xl ${t.type === "income" ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`}
-                          >
-                            {t.type === "income" ? (
-                              <ArrowUpRight className="w-4 h-4" />
-                            ) : (
-                              <ArrowDownLeft className="w-4 h-4" />
-                            )}
-                          </div>
-                          <span className="font-semibold text-gray-800">
-                            {t.description}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        <span className="px-3 py-1 bg-gray-100 rounded-full text-[10px] font-bold uppercase tracking-wide text-gray-600">
-                          {t.category}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-gray-500">
-                        {new Date(t.date).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                          
-                        })}
-                      </td>
-                      <td
-                        className={`px-6 py-4 font-bold ${t.type === "income" ? "text-emerald-600" : "text-gray-800"}`}
-                      >
-                        {t.type === "income" ? "+" : "-"} ₹
-                        {t.amount.toLocaleString("en-IN")}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <button className="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
+                    <TransactionItem key = {t.id} t = {t} handleDelete={handleDelete} />
                   ))
               ) : (
                 <tr>

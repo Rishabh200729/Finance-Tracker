@@ -1,13 +1,21 @@
 import addTransaction from "@/actions/addTransaction";
 import { DollarSign } from "lucide-react";
 import React from "react";
+import { useFinance } from "@/context/FinanceContext";
+import { useRouter } from "next/navigation";
 
 const QuickAdd = () => {
+  const { addLocalTransaction } = useFinance();
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await addTransaction(new FormData(e.currentTarget as HTMLFormElement));
+
     if(res.success){
         (e.target as HTMLFormElement).reset();
+        addLocalTransaction(res.newTransaction);
+        router.push('/dashboard/transactions');
     }
   };
   return (

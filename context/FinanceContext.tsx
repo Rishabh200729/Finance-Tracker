@@ -5,8 +5,8 @@ interface FinanceContextType {
   transactions: any[];
   budgets: any[];
   savingsGoals: any[];
-  setTransactions: React.Dispatch<React.SetStateAction<any[]>>;
   addLocalTransaction: (newTx: any) => void;
+  deleteLocalTransaction: (txId: number) => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -27,14 +27,17 @@ export function FinanceProvider({
   const addLocalTransaction = (newTx: any) => {
     setTransactions((prev) => [newTx, ...prev]);
   };
+  const deleteLocalTransaction = (txId: number) => {
+    setTransactions((prev) => prev.filter(tx => tx.id !== txId));
+  }
 
   return (
     <FinanceContext.Provider value={{ 
       transactions, 
       budgets, 
       savingsGoals, 
-      setTransactions,
-      addLocalTransaction 
+      addLocalTransaction,
+      deleteLocalTransaction,
     }}>
       {children}
     </FinanceContext.Provider>

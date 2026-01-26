@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { User, Transaction, Budgets } from "../models/models";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 import QuickAdd from "./QuickAdd";
 import TopSpendingSection from "./TopSpendingSection";
@@ -65,7 +64,7 @@ const Dashboard = ({ user }) => {
         </div>
         </div>
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          <QuickAdd userId={user?.id ?? null} />
+          <QuickAdd />
           <TopSpendingSection />
           <SavingsRateSection />
         </div>
