@@ -1,4 +1,4 @@
-import {integer, pgTable, varchar, timestamp} from "drizzle-orm/pg-core";
+import {integer, pgTable, varchar, timestamp, unique} from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const users = pgTable('users', {
@@ -22,8 +22,12 @@ export const budgets = pgTable('budgets', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: integer('user_id').notNull().references(() => users.id, {onDelete: 'cascade'}).notNull(),
     category: varchar('category', {length: 100}).notNull(),
-    amount: integer('amount').notNull(),
-    month: varchar('month', {length: 7}).notNull(), // Format: YYYY-MM
+    spent : integer('spent').notNull().default(0),
+    limit: integer('limit').notNull(),
+},(table) => {
+    return {
+        uniqueUserCategoryMonth: unique('user_category_month_unique').on(table.userId, table.category),
+    };
 });
 export const savingsGoals = pgTable('savings_goals', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),

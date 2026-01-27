@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 
 interface FinanceContextType {
   transactions: any[];
@@ -7,6 +7,8 @@ interface FinanceContextType {
   savingsGoals: any[];
   addLocalTransaction: (newTx: any) => void;
   deleteLocalTransaction: (txId: number) => void;
+  topSpendingCategories: { category: string; amount: number } | null;
+  totalExpenses: number;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -31,6 +33,24 @@ export function FinanceProvider({
     setTransactions((prev) => prev.filter(tx => tx.id !== txId));
   }
 
+  // CALCULATING TOP SPENDING CATEGORY AND SHOWIN G IT ON THE DASHBOARD PAGE 
+  const totalExpenses = useMemo(() => {
+    return transactions.reduce((sum, tx) => sum + (tx.amount), 0);
+  }, [transactions]);
+
+  // CALCULATING TOTAL EXPENSES AND SHOWING IT ON THE DASHBOARD PAGE IN THE TOP SPENDING COMPONENT
+  const topSpendingCategories = useMemo(() => {  
+    if(transactions.length === 0) return null;
+    const categoryMap : Record<string, number> = {};
+
+    transactions.forEach(tx => {
+        categoryMap[tx.category] = (categoryMap[tx.category] || 0) + tx.amount;
+    });
+
+    const sorted = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]);
+    return sorted.length > 0 ? { category : sorted[0][0], amount: sorted[0][1]} : null;
+  },[transactions]);
+
   return (
     <FinanceContext.Provider value={{ 
       transactions, 
@@ -38,6 +58,8 @@ export function FinanceProvider({
       savingsGoals, 
       addLocalTransaction,
       deleteLocalTransaction,
+      topSpendingCategories,
+      totalExpenses
     }}>
       {children}
     </FinanceContext.Provider>

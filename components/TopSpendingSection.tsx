@@ -1,5 +1,9 @@
+import { useFinance } from "@/context/FinanceContext";
 import { Target } from "lucide-react";
+
 const TopSpendingSection = () => {
+  const { topSpendingCategories } = useFinance();
+  console.log("Top Spending Categories:", topSpendingCategories);
   return (
     <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
       <div>
@@ -14,9 +18,9 @@ const TopSpendingSection = () => {
           <Target className="w-8 h-8 text-rose-500" />
         </div>
         <span className="text-xs font-bold text-rose-500 uppercase tracking-widest mb-1">
-          Food & Dining
+          {topSpendingCategories?.category || 'N/A'}
         </span>
-        <h2 className="text-4xl font-black text-gray-900">₹2,400</h2>
+        <h2 className="text-4xl font-black text-gray-900">₹{topSpendingCategories?.amount || 0}</h2>
       </div>
 
       <div className="space-y-2">

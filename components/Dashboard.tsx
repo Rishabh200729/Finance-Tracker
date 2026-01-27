@@ -1,13 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 import QuickAdd from "./QuickAdd";
 import TopSpendingSection from "./TopSpendingSection";
 import SavingsRateSection from "./SavingsRateSection";
+import { useFinance } from "@/context/FinanceContext";
 
-const Dashboard = ({ user }) => {
-  console.log("USER IS ", user);  
-  const [loading, setLoading] = useState(user ? false : true);
+const Dashboard = () => {
+  const { totalExpenses } = useFinance();
+  const [loading, setLoading] = useState(totalExpenses ? false : true);
 
   if (loading) {
     return (
@@ -55,7 +56,7 @@ const Dashboard = ({ user }) => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-rose-100 text-xs font-bold uppercase tracking-wider mb-1">Monthly Expenses</p>
-              <h2 className="text-3xl font-bold text-gray-800">- ₹1</h2>
+              <h2 className="text-3xl font-bold text-gray-800">- ₹{totalExpenses}</h2>
             </div>
             <div className="bg-rose-100 p-3 rounded-xl">
               <TrendingDown className="w-6 h-6 text-rose-600" />
