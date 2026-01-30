@@ -1,15 +1,25 @@
 import { useState } from "react";
 import upsertBudget from "../actions/addBudget";
+import { useFinance } from "../context/FinanceContext";
 
 const AddBudget = ({ onClose })=>{
     const [loading , setLoading] = useState(false);
-
-    const handleSubmit = async(e)=>{
-        const res = await upsertBudget(new FormData(e.target));
+    const { updateLocalBudgets } = useFinance();
+    
+    const handleSubmit = async(e: React.FormEvent<HTMLFormElement>)=>{
+        e.preventDefault();
+        setLoading(true);
+        const formData = new FormData(e.currentTarget as HTMLFormElement);  
+        const res = await upsertBudget(formData);
+        if(res.succcess){
+          updateLocalBudgets(res.newBudget);
+        }
+        setLoading(false);
+        onClose();
     }
     
     return (<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <form action={handleSubmit} className="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl">
         <h2 className="text-xl font-bold mb-6">
           Create Budget
         </h2>

@@ -5,7 +5,7 @@ import { useFinance } from "@/context/FinanceContext";
 import { useRouter } from "next/navigation";
 
 const QuickAdd = () => {
-  const { addLocalTransaction } = useFinance();
+  const { addLocalTransaction, updateLocalBudgets } = useFinance();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -15,6 +15,7 @@ const QuickAdd = () => {
     if(res.success){
         (e.target as HTMLFormElement).reset();
         addLocalTransaction(res.newTransaction);
+        updateLocalBudgets(res.newBudget);
         router.push('/dashboard/transactions');
     }
   };

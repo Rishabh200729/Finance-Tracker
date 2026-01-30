@@ -2,12 +2,12 @@
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { db } from "../src/index";
-import { transactions, users, budgets, savingsGoals } from "../src/db/schema";
+import { transactions, users, budgets, savingsGoals, monthly_incomes } from "../src/db/schema";
 import { eq } from "drizzle-orm";
 
 interface session {
-  id : number;
-  name : string;
+  id: number;
+  name: string;
 }
 
 export const getCurrentSession = async (): Promise<session | null> => {
@@ -30,10 +30,11 @@ export const getDashBoardData = async (userId: number) => {
       with: {
         transactions: {
           orderBy: (t, { desc }) => [desc(t.date)],
-          limit : 10
+          limit: 10
         },
         budgets: true,
-        savingsGoals: true
+        savingsGoals: true,
+        monthly_incomes: true
       }
     });
     return result;

@@ -6,6 +6,7 @@ interface FinanceContextType {
   budgets: any[];
   savingsGoals: any[];
   addLocalTransaction: (newTx: any) => void;
+  updateLocalBudgets: (newBudget: any) => void;
   deleteLocalTransaction: (txId: number) => void;
   topSpendingCategories: { category: string; amount: number } | null;
   totalExpenses: number;
@@ -13,13 +14,14 @@ interface FinanceContextType {
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
 
-export function FinanceProvider({ 
-  children, 
-  initialData 
-}: { 
-  children: React.ReactNode, 
-  initialData: any 
+export function FinanceProvider({
+  children,
+  initialData
+}: {
+  children: React.ReactNode,
+  initialData: any
 }) {
+  console.log("Initial Data in FinanceProvider:", initialData);
   // 1. Initialize all states from the master fetcher
   const [transactions, setTransactions] = useState(initialData?.transactions || []);
   const [budgets, setBudgets] = useState(initialData?.budgets || []);
@@ -28,6 +30,23 @@ export function FinanceProvider({
   // 2. Helper to add transaction to the top of the list instantly
   const addLocalTransaction = (newTx: any) => {
     setTransactions((prev) => [newTx, ...prev]);
+  };
+  const updateLocalBudgets = (newBudget: any) => {
+    setBudgets((prev) => {
+      console.log(newBudget);
+      const existingIndex = prev.findIndex(b => b.id === newBudget.id);
+
+      if (existingIndex !== -1) {
+        console.log("Updating existing budget");
+        console.log(prev);
+        console.log(existingIndex);
+
+        const updatedBudgets = [...prev];
+        updatedBudgets[existingIndex] = newBudget;
+        return updatedBudgets;
+      }
+      return [...prev, newBudget];
+    });
   };
   const deleteLocalTransaction = (txId: number) => {
     setTransactions((prev) => prev.filter(tx => tx.id !== txId));
@@ -39,27 +58,28 @@ export function FinanceProvider({
   }, [transactions]);
 
   // CALCULATING TOTAL EXPENSES AND SHOWING IT ON THE DASHBOARD PAGE IN THE TOP SPENDING COMPONENT
-  const topSpendingCategories = useMemo(() => {  
-    if(transactions.length === 0) return null;
-    const categoryMap : Record<string, number> = {};
+  const topSpendingCategories = useMemo(() => {
+    if (transactions.length === 0) return null;
+    const categoryMap: Record<string, number> = {};
 
     transactions.forEach(tx => {
-        categoryMap[tx.category] = (categoryMap[tx.category] || 0) + tx.amount;
+      categoryMap[tx.category] = (categoryMap[tx.category] || 0) + tx.amount;
     });
 
     const sorted = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]);
-    return sorted.length > 0 ? { category : sorted[0][0], amount: sorted[0][1]} : null;
-  },[transactions]);
+    return sorted.length > 0 ? { category: sorted[0][0], amount: sorted[0][1] } : null;
+  }, [transactions]);
 
   return (
-    <FinanceContext.Provider value={{ 
-      transactions, 
-      budgets, 
-      savingsGoals, 
+    <FinanceContext.Provider value={{
+      transactions,
+      budgets,
+      savingsGoals,
       addLocalTransaction,
       deleteLocalTransaction,
       topSpendingCategories,
-      totalExpenses
+      totalExpenses,
+      updateLocalBudgets
     }}>
       {children}
     </FinanceContext.Provider>

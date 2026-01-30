@@ -1,22 +1,14 @@
 'use client'
-import { Search} from "lucide-react";
+import { Search } from "lucide-react";
 import { useFinance } from "@/context/FinanceContext";
 import { useState } from "react";
 import deleteTransaction from "@/actions/deleteTransaction";
 import TransactionItem from "@/components/TransactionItem";
 
 const Page = () => {
-  const { transactions, deleteLocalTransaction } = useFinance();
+  const { transactions } = useFinance();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const handleDelete = async (id : number) => {
-    const res = await deleteTransaction(id);
-    if(res.success){
-      deleteLocalTransaction(id);
-    }else {
-      alert("Failed to delete transaction");
-    }
-  }
   return (
     <div className="max-w-7xl mx-auto px-4 pb-12">
       {/* Header & Search Section */}
@@ -62,8 +54,8 @@ const Page = () => {
                 </th>
               </tr>
             </thead>
-             <tbody className="divide-y divide-gray-50"> 
-               {transactions.length > 0 ? (
+            <tbody className="divide-y divide-gray-50">
+              {transactions.length > 0 ? (
                 transactions
                   .filter((t) =>
                     t.description
@@ -71,7 +63,7 @@ const Page = () => {
                       .includes(searchTerm.toLowerCase()),
                   )
                   .map((t) => (
-                    <TransactionItem key = {t.id} t = {t} handleDelete={handleDelete} />
+                    <TransactionItem key={t.id} t={t} />
                   ))
               ) : (
                 <tr>
@@ -83,8 +75,8 @@ const Page = () => {
                   </td>
                 </tr>
               )}
-            </tbody> 
-          </table> 
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

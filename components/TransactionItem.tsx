@@ -6,7 +6,7 @@ import { useFinance } from "@/context/FinanceContext";
 import { motion } from "framer-motion";
 
 const TransactionItem = ({ t }: any) => {
-  const { deleteLocalTransaction } = useFinance();
+  const { deleteLocalTransaction, updateLocalBudgets } = useFinance();
   const [loading, setLoading] = useState(false);
 
   const handleDelete = async (id: number) => {
@@ -14,6 +14,7 @@ const TransactionItem = ({ t }: any) => {
     const res = await deleteTransaction(id);
     if (res.success) {
       deleteLocalTransaction(id);
+      updateLocalBudgets(res.updatedBudget);
     } else {
       alert("Failed to delete transaction");
       setLoading(false); // Only stop loading if it fails, otherwise row unmounts
