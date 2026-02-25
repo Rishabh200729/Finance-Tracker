@@ -9,7 +9,6 @@ const upsertBudget = async (formData: FormData) => {
 
     const { id } = session || {};
     if (!id) throw new Error("User not authenticated");
-    console.log(formData);
     const category = formData.get("category") as string;
     const limit = formData.get("limit") as string;
 

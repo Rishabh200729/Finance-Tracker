@@ -1,15 +1,43 @@
 'use client';
 import React, { createContext, useContext, useMemo, useState } from 'react';
 
+interface Transaction {
+  id: number;
+  amount: number;
+  category: string;
+  date: string | Date;
+  description?: string | null;
+}
+
+interface Budget {
+  id: number;
+  userId: number;
+  category: string;
+  spent: number;
+  limit: number;
+}
+
+interface SavingsGoal {
+  id: number;
+  userId: number;
+  goalName: string;
+  targetAmount: number;
+  currentAmount: number;
+  deadline: string | Date | null;
+}
+
 interface FinanceContextType {
-  transactions: any[];
-  budgets: any[];
-  savingsGoals: any[];
-  addLocalTransaction: (newTx: any) => void;
-  updateLocalBudgets: (newBudget: any) => void;
+  transactions: Transaction[];
+  budgets: Budget[];
+  savingsGoals: SavingsGoal[];
+  addLocalTransaction: (newTx: Transaction) => void;
+  updateLocalBudgets: (newBudget: Budget) => void;
   deleteLocalTransaction: (txId: number) => void;
   topSpendingCategories: { category: string; amount: number } | null;
   totalExpenses: number;
+  income: number;
+  updateIncome: (newIncome: number) => void;
+  totalBudgets: number;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -23,24 +51,34 @@ export function FinanceProvider({
 }) {
   console.log("Initial Data in FinanceProvider:", initialData);
   // 1. Initialize all states from the master fetcher
-  const [transactions, setTransactions] = useState(initialData?.transactions || []);
-  const [budgets, setBudgets] = useState(initialData?.budgets || []);
-  const [savingsGoals, setSavingsGoals] = useState(initialData?.savingsGoals || []);
+  const [transactions, setTransactions] = useState<Transaction[]>(initialData?.transactions || []);
+  const [budgets, setBudgets] = useState<Budget[]>(initialData?.budgets || []);
+  const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>(initialData?.savingsGoals || []);
+  const [income, setIncome] = useState<number>(initialData?.monthlyIncomes?.length > 0 ? initialData.monthlyIncomes[0].amount : 0);
+  const [totalBudgets, setTotalBudgets] = useState<number>(budgets.reduce((sum, b) => sum + b.limit, 0));
+
+  // 1.5 Initialize aggregated stats from server
+  const [totalExpenses, setTotalExpenses] = useState<number>(initialData?.calculatedStats?.monthlyExpenses || 0);
+  const [topSpendingCategories, setTopSpendingCategories] = useState<{ category: string; amount: number } | null>(
+    initialData?.calculatedStats?.topSpendingCategory || null
+  );
 
   // 2. Helper to add transaction to the top of the list instantly
-  const addLocalTransaction = (newTx: any) => {
-    setTransactions((prev) => [newTx, ...prev]);
+  const addLocalTransaction = (newTx: Transaction) => {
+    setTransactions((prev: Transaction[]) => [newTx, ...prev]);
+    //update total expenses if it's in the current month
+    const now = new Date();
+    const txDate = new Date(newTx.date);
+    if (txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear()) {
+      setTotalExpenses((prev: number) => prev + newTx.amount);
+    }
   };
-  const updateLocalBudgets = (newBudget: any) => {
-    setBudgets((prev) => {
-      console.log(newBudget);
+  // update the budgets list after creating or updating a budget, by checking if the budget already exists in the list and updating it, otherwise adding it to the list
+  const updateLocalBudgets = (newBudget: Budget) => {
+    setBudgets((prev: Budget[]) => {
       const existingIndex = prev.findIndex(b => b.id === newBudget.id);
 
       if (existingIndex !== -1) {
-        console.log("Updating existing budget");
-        console.log(prev);
-        console.log(existingIndex);
-
         const updatedBudgets = [...prev];
         updatedBudgets[existingIndex] = newBudget;
         return updatedBudgets;
@@ -48,28 +86,26 @@ export function FinanceProvider({
       return [...prev, newBudget];
     });
   };
+  // delete a transaction from the transactions list by filtering it out based on the transaction id
   const deleteLocalTransaction = (txId: number) => {
-    setTransactions((prev) => prev.filter(tx => tx.id !== txId));
+    setTransactions((prev: Transaction[]) => {
+      const txToDelete = prev.find(t => t.id === txId);
+      if (txToDelete) {
+        const now = new Date();
+        const txDate = new Date(txToDelete.date);
+        // on the frontend, decrement total expenses if the transaction is in the current month
+        if (txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear()) {
+          setTotalExpenses((cur: number) => cur - txToDelete.amount);
+        }
+      }
+      return prev.filter(tx => tx.id !== txId);
+    });
   }
 
-  // CALCULATING TOP SPENDING CATEGORY AND SHOWIN G IT ON THE DASHBOARD PAGE 
-  const totalExpenses = useMemo(() => {
-    return transactions.reduce((sum, tx) => sum + (tx.amount), 0);
-  }, [transactions]);
-
-  // CALCULATING TOTAL EXPENSES AND SHOWING IT ON THE DASHBOARD PAGE IN THE TOP SPENDING COMPONENT
-  const topSpendingCategories = useMemo(() => {
-    if (transactions.length === 0) return null;
-    const categoryMap: Record<string, number> = {};
-
-    transactions.forEach(tx => {
-      categoryMap[tx.category] = (categoryMap[tx.category] || 0) + tx.amount;
-    });
-
-    const sorted = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]);
-    return sorted.length > 0 ? { category: sorted[0][0], amount: sorted[0][1] } : null;
-  }, [transactions]);
-
+  // update income or create a new income if it doesn't exist, and update the income state in the context
+  const updateIncome = (newIncome: number) => {
+    setIncome(newIncome);
+  }
   return (
     <FinanceContext.Provider value={{
       transactions,
@@ -79,7 +115,10 @@ export function FinanceProvider({
       deleteLocalTransaction,
       topSpendingCategories,
       totalExpenses,
-      updateLocalBudgets
+      updateLocalBudgets,
+      income,
+      updateIncome,
+      totalBudgets
     }}>
       {children}
     </FinanceContext.Provider>

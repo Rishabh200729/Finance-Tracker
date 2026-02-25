@@ -2,25 +2,27 @@ import Header from "@/components/Header";
 import { getCurrentSession, getDashBoardData } from "@/utils/lib";
 import { redirect } from "next/navigation";
 import { FinanceProvider } from "@/context/FinanceContext";
-import Sidebar from "../../components/Sidebar";
+import { UserProvider } from "@/context/UserContext";
+
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const userSession = await getCurrentSession();
-
   if (!userSession?.id) {
     redirect("/login");
   }
   const userData = await getDashBoardData(userSession.id);
 
   return (
-    <FinanceProvider initialData={userData}>
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-4 min-h-screen">
-        <Header userName={userSession.name} />
-        <main>{children}</main>
-      </div>
-    </FinanceProvider>
+    <UserProvider>
+      <FinanceProvider initialData={userData}>
+        <div className="bg-gradient-to-br from-orange-50 to-amber-100 dark:from-stone-900 dark:to-stone-800 p-4 min-h-screen transition-colors">
+          <Header userName={userSession.name} />
+          <main>{children}</main>
+        </div>
+      </FinanceProvider>
+    </UserProvider>
   );
 }

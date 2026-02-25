@@ -1,2 +1,15 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
+
+:root {
+    --background: #ffffff;
+    --foreground: #0f172a;
+}
+
+.dark {
+    --background: #020617;
+    /* Deep slate for your tracker */
+    --foreground: #f8fafc;
+}
