@@ -1,42 +1,45 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import upsertBudget from "../actions/addBudget";
 import { useFinance } from "../context/FinanceContext";
-import { form } from "framer-motion/client";
+import { motion } from "framer-motion";
+import ErrorMessage from "./ErrorMessage";
+import LoadingSpinner from "./LoadingSpinner";
 
 const AddBudget = ({ onClose }: { onClose: () => void }) => {
   const [loading, setLoading] = useState(false);
-  const [customCategory, setCustomCategory] = useState("");
-  const { totalBudgets, income, updateLocalBudgets } = useFinance();
+  const [category, setCategory] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const { budgets, totalBudgets, income, updateLocalBudgets } = useFinance();
 
+  // Find if category exists (strictly for UX labels)
+  const isUpdating = budgets.some(b => b.category.toLowerCase() === category.trim().toLowerCase());
+
+  // Auto clean error after 5 seconds
+  useEffect(() => {
+    if (!error) return;
+
+    const timer = setTimeout(() => setError(null), 5000);
+    return () => clearTimeout(timer);
+  }, [error]);
+
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     const formData = new FormData(e.currentTarget as HTMLFormElement);
+    formData.set("category", category.trim());
 
-    // Logic: Use custom category if provided, otherwise use dropdown
-    if (customCategory.trim() !== "") {
-      formData.set("category", customCategory.trim());
-    }
-    if(formData.get("limit") && income) {
-      const limitValue = parseFloat(formData.get("limit") as string);
-      if(limitValue > income) {
-        alert("Budget limit cannot exceed total income.");
-        setLoading(false);
-        return;
-      }
-    }
-    if(income - totalBudgets < parseFloat(formData.get("limit") as string)) {
-      alert("You don't have enough remaining income to allocate this budget.");
-      setLoading(false);
-      return;
-    }
     const res = await upsertBudget(formData);
-    if (res.succcess) {
+
+    if (res.success && res.newBudget) {
       updateLocalBudgets(res.newBudget);
       onClose();
+    } else {
+      setError(res.error || "Something went wrong.");
     }
     setLoading(false);
   };
@@ -52,41 +55,19 @@ const AddBudget = ({ onClose }: { onClose: () => void }) => {
         </h2>
 
         <div className="space-y-5">
-          {/* Category Dropdown */}
+          {/* Category Input */}
           <div>
             <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-2 block">
-              Select Category
-            </label>
-            <select
-              name="category"
-              disabled={customCategory.length > 0}
-              className={`w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none text-slate-900 dark:text-slate-100 transition-opacity ${customCategory.length > 0 ? 'opacity-50' : 'opacity-100'}`}
-            >
-              <option value="Food">Food</option>
-              <option value="Shopping">Shopping</option>
-              <option value="Rent">Rent</option>
-              <option value="Entertainment">Entertainment</option>
-            </select>
-          </div>
-
-          {/* Divider */}
-          <div className="relative flex py-2 items-center">
-            <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-            <span className="flex-shrink mx-4 text-xs text-slate-400 uppercase font-medium">Or</span>
-            <div className="flex-grow border-t border-slate-200 dark:border-slate-800"></div>
-          </div>
-
-          {/* New Category Input */}
-          <div>
-            <label className="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400 mb-2 block">
-              Create New Category
+              Budget Category
             </label>
             <input
+              name="category"
               type="text"
-              value={customCategory}
-              onChange={(e) => setCustomCategory(e.target.value)}
+              required
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
               className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 transition-all"
-              placeholder="e.g. Gym, Travel..."
+              placeholder="e.g. Food, Gym, Travel..."
             />
           </div>
 
@@ -105,8 +86,11 @@ const AddBudget = ({ onClose }: { onClose: () => void }) => {
           </div>
         </div>
         <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-3">Remaining Income: ₹{income - totalBudgets}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-3">Remaining Income: ₹{income - totalBudgets}</p>
         </div>
+
+        {/* Error Notification */}
+        <ErrorMessage message={error} />
         <div className="flex gap-3 mt-10">
           <button
             type="button"
@@ -118,9 +102,17 @@ const AddBudget = ({ onClose }: { onClose: () => void }) => {
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 py-3 bg-indigo-600 dark:bg-indigo-500 text-white rounded-2xl font-bold hover:bg-indigo-700 dark:hover:bg-indigo-600 shadow-lg shadow-indigo-200 dark:shadow-none transition-all disabled:opacity-50"
+            className={`flex-1 py-3 text-white rounded-2xl font-bold transition-all disabled:opacity-50 shadow-lg ${isUpdating
+              ? "bg-teal-600 hover:bg-teal-700 shadow-teal-200 dark:shadow-none"
+              : "bg-indigo-600 hover:bg-indigo-700 shadow-indigo-200 dark:shadow-none"
+              }`}
           >
-            {loading ? "Saving..." : "Save Budget"}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <LoadingSpinner />
+                <span>Saving...</span>
+              </div>
+            ) : (isUpdating ? "Update Budget" : "Save Budget")}
           </button>
         </div>
       </form>

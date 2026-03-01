@@ -4,7 +4,7 @@ import { Target } from "lucide-react";
 const TopSpendingSection = () => {
   const { income, totalExpenses, topSpendingCategories } = useFinance();
   return (
-    <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-stone-800 flex flex-col justify-between transition-colors">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col justify-between transition-colors">
       <div>
         <h3 className="font-bold text-gray-800 dark:text-white mb-1">Top Spending</h3>
         <p className="text-xs text-gray-400 dark:text-gray-500">

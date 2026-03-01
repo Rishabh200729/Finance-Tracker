@@ -56,7 +56,7 @@ export function FinanceProvider({
 
   console.log("Initial Data in FinanceProvider:", initialData);
 
-// Raw data to be stored in useState - this is the source of truth for the context
+  // Raw data to be stored in useState - this is the source of truth for the context
   const [transactions, setTransactions] = useState<Transaction[]>(
     initialData?.transactions || []
   );
@@ -75,7 +75,7 @@ export function FinanceProvider({
       : 0
   );
 
-// Derived state - these are computed from the raw data and will update when the raw data changes
+  // Derived state - these are computed from the raw data and will update when the raw data changes
   const totalExpenses = useMemo(() => {
     const now = new Date();
 
@@ -128,7 +128,7 @@ export function FinanceProvider({
   }, [budgets]);
 
 
-//  Mutations
+  //  Mutations
   const addLocalTransaction = (newTx: Transaction) => {
     setTransactions((prev) => [newTx, ...prev]);
   };
@@ -146,6 +146,7 @@ export function FinanceProvider({
 
       if (existingIndex !== -1) {
         const updated = [...prev];
+        console.log(updated)
         updated[existingIndex] = newBudget;
         return updated;
       }

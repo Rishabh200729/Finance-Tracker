@@ -32,7 +32,7 @@ const Header = ({ userName }: { userName: string }) => {
   };
   return (
     <div className="max-w-7xl mx-auto">
-      <div className="bg-white dark:bg-stone-900 rounded-2xl p-6 mb-6 shadow-md transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 mb-6 shadow-md transition-colors border border-slate-100 dark:border-slate-800">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 dark:text-white tracking-tight">
@@ -42,7 +42,7 @@ const Header = ({ userName }: { userName: string }) => {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <button onClick={() => router.push("/dashboard/settings")} className="cursor-pointer flex items-center gap-2 bg-stone-500 dark:bg-stone-700 text-white px-2 py-2 rounded-lg hover:bg-stone-600 dark:hover:bg-stone-600 transition shadow-md">
+            <button onClick={() => router.push("/dashboard/settings")} className="cursor-pointer flex items-center gap-2 bg-slate-500 dark:bg-slate-700 text-white px-2 py-2 rounded-lg hover:bg-slate-600 dark:hover:bg-slate-600 transition shadow-md">
               <SettingsIcon className="w-6 h-6" />
             </button>
           </div>
@@ -58,7 +58,7 @@ const Header = ({ userName }: { userName: string }) => {
             <button
               key={tab.id}
               onClick={handleClick}
-              className={`flex items-center gap-2 px-6 py-2 rounded-full font-semibold transition whitespace-nowrap shadow-sm ${activeTab === tab.id ? "bg-orange-600 dark:bg-orange-700 text-white shadow-orange-200 dark:shadow-none" : "bg-stone-100 dark:bg-stone-800 text-gray-700 dark:text-gray-300 hover:bg-stone-200 dark:hover:bg-stone-700"}`}
+              className={`flex items-center gap-2 px-6 py-2 rounded-full font-semibold transition whitespace-nowrap shadow-sm ${activeTab === tab.id ? "bg-indigo-600 dark:bg-indigo-700 text-white shadow-indigo-200 dark:shadow-none" : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
             >
               <tab.icon className="w-4 h-4" />
               {tab.label}

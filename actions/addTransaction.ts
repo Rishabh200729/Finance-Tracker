@@ -35,11 +35,10 @@ const addTransaction = async (formData: FormData) => {
       ).returning();
       return { success: true, newTransaction, newBudget };
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error adding transaction:", error);
-    throw new Error("Failed to add transaction");
+    return { success: false, error: "Failed to add transaction" };
   }
-
 }
 
 export default addTransaction;

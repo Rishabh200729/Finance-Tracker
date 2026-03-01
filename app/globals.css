@@ -4,12 +4,11 @@
 
 
 :root {
-    --background: #ffffff;
-    --foreground: #0f172a;
+    --background: #f8fafc; /* slate-50 */
+    --foreground: #0f172a; /* slate-900 */
 }
 
 .dark {
-    --background: #020617;
-    /* Deep slate for your tracker */
-    --foreground: #f8fafc;
+    --background: #020617; /* deep slate-950 */
+    --foreground: #f1f5f9; /* slate-100 */
 }

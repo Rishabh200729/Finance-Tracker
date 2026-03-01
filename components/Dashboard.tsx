@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 import QuickAdd from "./QuickAdd";
 import TopSpendingSection from "./TopSpendingSection";
-import SavingsRateSection from "./SavingsRateSection";
 import { useFinance } from "@/context/FinanceContext";
 
 const Dashboard = () => {
@@ -12,8 +11,8 @@ const Dashboard = () => {
   console.log("Total Expenses in Dashboard:", totalExpenses);
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-100 dark:from-stone-900 dark:to-stone-800 flex items-center justify-center">
-        <div className="text-orange-600 dark:text-orange-400 text-xl font-semibold animate-pulse">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center">
+        <div className="text-indigo-600 dark:text-indigo-400 text-xl font-semibold animate-pulse">
           Loading Your Finances...
         </div>
       </div>
@@ -24,14 +23,14 @@ const Dashboard = () => {
     <div>
       <div className="w-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3">
         <div
-          className={`rounded-2xl p-6 text-white shadow-lg transition-all ${1 >= 0
-            ? "bg-gradient-to-br from-orange-500 to-amber-600"
-            : "bg-gradient-to-br from-rose-500 to-red-600"
+          className={`rounded-2xl p-6 text-white shadow-lg transition-all ${income - totalExpenses >= 0
+            ? "bg-gradient-to-br from-slate-800 to-slate-900"
+            : "bg-gradient-to-br from-rose-500 to-rose-600"
             }`}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-orange-100 text-xs font-bold uppercase tracking-wider mb-1">
+              <p className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-1">
                 Total Balance
               </p>
               <h2 className="text-3xl font-bold">₹{income - totalExpenses}</h2>
@@ -40,25 +39,25 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl p-6 shadow-sm border border-orange-100 transition-all bg-gradient-to-br from-amber-400 to-orange-500">
+        <div className="rounded-2xl p-6 shadow-sm border border-emerald-100 dark:border-emerald-900/20 transition-all bg-gradient-to-br from-emerald-400 to-emerald-500 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-amber-100 text-xs font-bold uppercase tracking-wider mb-1">Monthly Income</p>
-              <h2 className="text-3xl font-bold text-stone-800">+ {income}</h2>
+              <p className="text-emerald-50 text-xs font-bold uppercase tracking-wider mb-1">Monthly Income</p>
+              <h2 className="text-3xl font-bold">+ {income}</h2>
             </div>
-            <div className="bg-amber-100 p-3 rounded-xl">
-              <TrendingUp className="w-6 h-6 text-amber-600" />
+            <div className="bg-emerald-100/20 p-3 rounded-xl">
+              <TrendingUp className="w-6 h-6 text-emerald-50" />
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-rose-100 transition-all bg-gradient-to-br from-rose-400 to-red-500">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-rose-100 dark:border-rose-900/20 transition-all bg-gradient-to-br from-rose-400 to-rose-500 text-white">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-rose-100 text-xs font-bold uppercase tracking-wider mb-1">Monthly Expenses</p>
-              <h2 className="text-3xl font-bold text-stone-800">- ₹{totalExpenses}</h2>
+              <p className="text-rose-50 text-xs font-bold uppercase tracking-wider mb-1">Monthly Expenses</p>
+              <h2 className="text-3xl font-bold">- ₹{totalExpenses}</h2>
             </div>
-            <div className="bg-rose-100 p-3 rounded-xl">
-              <TrendingDown className="w-6 h-6 text-rose-600" />
+            <div className="bg-rose-100/20 p-3 rounded-xl">
+              <TrendingDown className="w-6 h-6 text-rose-50" />
             </div>
           </div>
         </div>
