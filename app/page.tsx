@@ -11,8 +11,8 @@ export default async function Home() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center font-sans">
-        <First />
-    </div>
+    <main className="min-h-screen font-sans">
+      <First />
+    </main>
   );
 }

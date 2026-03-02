@@ -4,6 +4,7 @@ import { Wallet, TrendingUp, TrendingDown } from "lucide-react";
 import QuickAdd from "./QuickAdd";
 import TopSpendingSection from "./TopSpendingSection";
 import { useFinance } from "@/context/FinanceContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 const Dashboard = () => {
   const { income, totalExpenses, transactions, budgets } = useFinance();
@@ -11,7 +12,8 @@ const Dashboard = () => {
   console.log("Total Expenses in Dashboard:", totalExpenses);
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex flex-col items-center justify-center gap-4">
+        <LoadingSpinner className="!w-12 !h-12 text-indigo-600" />
         <div className="text-indigo-600 dark:text-indigo-400 text-xl font-semibold animate-pulse">
           Loading Your Finances...
         </div>

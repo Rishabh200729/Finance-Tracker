@@ -1,13 +1,27 @@
 'use client'
 import { Search } from "lucide-react";
 import { useFinance } from "@/context/FinanceContext";
-import { useState } from "react";
-import deleteTransaction from "@/actions/deleteTransaction";
+import { useState, useEffect } from "react";
 import TransactionItem from "@/components/TransactionItem";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { AnimatePresence } from "framer-motion";
 
 const Page = () => {
   const { transactions } = useFinance();
   const [searchTerm, setSearchTerm] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <LoadingSpinner className="!w-12 !h-12 text-indigo-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 pb-12">
@@ -26,57 +40,45 @@ const Page = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search transactions..."
             className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl text-sm dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
           />
         </div>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-gray-100 dark:border-slate-800 overflow-hidden transition-colors">
+      <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50/50 dark:bg-slate-800/50 border-b border-gray-100 dark:border-slate-800">
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                  Transaction
-                </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-6 py-4 text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider text-right">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
-              {transactions.length > 0 ? (
-                transactions
+          <div className="min-w-[800px]">
+            {/* Header Grid */}
+            <div className="grid grid-cols-12 bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 px-6 py-4">
+              <span className="col-span-4 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Transaction</span>
+              <span className="col-span-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Category</span>
+              <span className="col-span-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Date</span>
+              <span className="col-span-3 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Amount</span>
+              <span className="col-span-1 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider text-right">Action</span>
+            </div>
+
+            <div className="divide-y divide-slate-50 dark:divide-slate-800">
+              <AnimatePresence mode="popLayout" initial={false}>
+                {transactions
                   .filter((t) =>
-                    t.description
+                    (t.description || "")
                       .toLowerCase()
                       .includes(searchTerm.toLowerCase()),
                   )
                   .map((t) => (
                     <TransactionItem key={t.id} t={t} />
-                  ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-12 text-center text-gray-400 italic"
-                  >
-                    No transactions found.
-                  </td>
-                </tr>
+                  ))}
+              </AnimatePresence>
+              {transactions.filter(t => (t.description || "").toLowerCase().includes(searchTerm.toLowerCase())).length === 0 && (
+                <div className="px-6 py-12 text-center text-slate-400 dark:text-slate-600 italic">
+                  No transactions found.
+                </div>
               )}
-            </tbody>
-          </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>

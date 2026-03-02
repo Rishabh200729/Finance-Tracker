@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   PieChart as RechartsPie,
   Pie,
@@ -15,11 +15,17 @@ import {
 } from "recharts";
 import { TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3 } from "lucide-react";
 import { useFinance } from "@/context/FinanceContext";
+import LoadingSpinner from "./LoadingSpinner";
 
 const COLORS = ["#6366f1", "#10b981", "#f43f5e", "#fbbf24", "#64748b"];
 
 export default function Analytics() {
   const { transactions, income, totalExpenses } = useFinance();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const categoryData = useMemo(() => {
     const totals: Record<string, number> = {};
@@ -40,6 +46,14 @@ export default function Analytics() {
   const barData = [
     { name: "Monthly", income, expenses: totalExpenses },
   ];
+
+  if (!mounted) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <LoadingSpinner className="!w-12 !h-12 text-indigo-600" />
+      </div>
+    );
+  }
 
   return (
     <div className="animate-in fade-in duration-500 space-y-8">

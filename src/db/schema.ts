@@ -24,7 +24,7 @@ export const monthly_incomes = pgTable('monthly_incomes', {
     date: timestamp('date').notNull(),
     month: varchar('month', { length: 100 }).notNull(),
     year: varchar('year', { length: 100 }).notNull(),
-},(table) => {
+}, (table) => {
     return {
         uniqueUserIncome: unique('user_income_unique').on(table.userId),
     };

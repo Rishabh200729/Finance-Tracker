@@ -16,7 +16,7 @@ export default async function DashboardLayout({
   const userData = await getDashBoardData(userSession.id);
 
   return (
-    <UserProvider>
+    <UserProvider initialName={userData?.name} initialEmail={userData?.email}>
       <FinanceProvider initialData={userData}>
         <div className="bg-gradient-to-br from-orange-50 to-amber-100 dark:from-stone-900 dark:to-stone-800 p-4 min-h-screen transition-colors">
           <Header userName={userSession.name} />
