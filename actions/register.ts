@@ -8,10 +8,12 @@ import jwt from "jsonwebtoken";
 
 export async function registerUser(name: string, email: string, password: string) {
     try {
+        console.log(`Registration attempt for: ${email}`);
         const cookieStore = await cookies();
         const foundUser = await db.select().from(users).where(or(eq(users.email, email), eq(users.name, name)));
 
         if (foundUser.length > 0) {
+            console.log(`Registration failed: User ${email} already exists`);
             return { error: "User already exists" };
         }
 
@@ -31,8 +33,15 @@ export async function registerUser(name: string, email: string, password: string
             maxAge: 24 * 60 * 60
         });
 
+        console.log(`Registration successful for: ${email}`);
         return { success: true };
     } catch (error: any) {
+        console.error("Registration error details:", {
+            message: error.message,
+            code: error.code,
+            detail: error.detail,
+            stack: error.stack
+        });
         return { error: `Registration failed: ${error.message || error}` };
     }
 }
