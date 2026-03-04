@@ -1,5 +1,5 @@
 'use client';
-import { DollarSign, BarChart3, Target, Calendar, SettingsIcon } from "lucide-react";
+import { DollarSign, BarChart3, Target, Calendar, SettingsIcon, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "./ThemeToggle";
 import Link from 'next/link';
@@ -34,6 +34,7 @@ const Header = ({ userName: initialName }: { userName: string }) => {
           {[
             { id: "dashboard", label: "Dashboard", href: "/dashboard", icon: DollarSign },
             { id: "analytics", label: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
+            { id: "chat", label: "AI Chat", href: "/dashboard/chat", icon: Sparkles },
             { id: "budgets", label: "Budgets", href: "/dashboard/budgets", icon: Target },
             { id: "transactions", label: "Transactions", href: "/dashboard/transactions", icon: Calendar },
             { id: "income", label: "Income", href: "/dashboard/income", icon: DollarSign },

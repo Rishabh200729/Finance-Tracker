@@ -35,9 +35,11 @@ export const budgets = pgTable('budgets', {
     category: varchar('category', { length: 100 }).notNull(),
     spent: integer('spent').notNull().default(0),
     limit: integer('limit').notNull(),
+    month: varchar('month', { length: 20 }).notNull(),
+    year: varchar('year', { length: 4 }).notNull(),
 }, (table) => {
     return {
-        uniqueUserCategoryMonth: unique('user_category_month_unique').on(table.userId, table.category),
+        uniqueUserCategoryMonthYear: unique('user_category_month_year_unique').on(table.userId, table.category, table.month, table.year),
     };
 });
 export const savingsGoals = pgTable('savings_goals', {

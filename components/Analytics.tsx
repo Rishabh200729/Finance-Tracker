@@ -16,11 +16,12 @@ import {
 import { TrendingUp, TrendingDown, DollarSign, PieChart, BarChart3 } from "lucide-react";
 import { useFinance } from "@/context/FinanceContext";
 import LoadingSpinner from "./LoadingSpinner";
+import MonthPicker from "./MonthPicker";
 
 const COLORS = ["#6366f1", "#10b981", "#f43f5e", "#fbbf24", "#64748b"];
 
 export default function Analytics() {
-  const { transactions, income, totalExpenses } = useFinance();
+  const { transactions, income, totalExpenses, selectedMonth, selectedYear } = useFinance();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -29,19 +30,18 @@ export default function Analytics() {
 
   const categoryData = useMemo(() => {
     const totals: Record<string, number> = {};
-    const now = new Date();
 
     transactions
       .filter(tx => {
         const d = new Date(tx.date);
-        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
       })
       .forEach(tx => {
         totals[tx.category] = (totals[tx.category] || 0) + tx.amount;
       });
 
     return Object.entries(totals).map(([name, value]) => ({ name, value }));
-  }, [transactions]);
+  }, [transactions, selectedMonth, selectedYear]);
 
   const barData = [
     { name: "Monthly", income, expenses: totalExpenses },
@@ -56,7 +56,15 @@ export default function Analytics() {
   }
 
   return (
-    <div className="animate-in fade-in duration-500 space-y-8">
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Financial Analytics</h1>
+          <p className="text-sm text-slate-500">Deep dive into your spending habits</p>
+        </div>
+        <MonthPicker />
+      </div>
+
       {/* Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-teal-400 to-teal-600 rounded-2xl p-6 text-white shadow-lg">

@@ -11,18 +11,29 @@ const upsertBudget = async (formData: FormData) => {
 
     const category = formData.get("category") as string;
     const limit = formData.get("limit") as string;
-    if (!category || !limit) throw new Error("Category and limit are required");
+    const month = formData.get("month") as string;
+    const year = formData.get("year") as string;
+
+    if (!category || !limit || !month || !year) throw new Error("Category, limit, month, and year are required");
 
     const limitNumber = Number(limit);
 
     try {
-        // 1. Fetch Income and Existing Budgets for reliable validation
+        // 1. Fetch Income and Existing Budgets for reliable validation for THIS month
         const [incomeRecord, userBudgets] = await Promise.all([
             db.query.monthly_incomes.findFirst({
-                where: eq(monthly_incomes.userId, id)
+                where: and(
+                    eq(monthly_incomes.userId, id),
+                    eq(monthly_incomes.month, month),
+                    eq(monthly_incomes.year, year)
+                )
             }),
             db.query.budgets.findMany({
-                where: eq(budgets.userId, id)
+                where: and(
+                    eq(budgets.userId, id),
+                    eq(budgets.month, month),
+                    eq(budgets.year, year)
+                )
             })
         ]);
 
@@ -31,7 +42,7 @@ const upsertBudget = async (formData: FormData) => {
 
         // 2. Business Logic Validation
         if (limitNumber > totalIncome) {
-            return { success: false, error: "Budget limit cannot exceed total income." };
+            return { success: false, error: "Budget limit cannot exceed current month's total income." };
         }
 
         const otherBudgetsTotal = userBudgets
@@ -39,16 +50,18 @@ const upsertBudget = async (formData: FormData) => {
             .reduce((sum, b) => sum + b.limit, 0);
 
         if (otherBudgetsTotal + limitNumber > totalIncome) {
-            return { success: false, error: "Insufficient remaining income to allocate this budget." };
+            return { success: false, error: "Insufficient remaining income for this month to allocate this budget." };
         }
 
         // 3. Perform Upsert
         const result = await db.insert(budgets).values({
             userId: id,
             category: category.trim(),
-            limit: limitNumber
+            limit: limitNumber,
+            month,
+            year
         }).onConflictDoUpdate({
-            target: [budgets.userId, budgets.category],
+            target: [budgets.userId, budgets.category, budgets.month, budgets.year],
             set: { limit: limitNumber }
         }).returning();
 

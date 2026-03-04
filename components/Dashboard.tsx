@@ -5,11 +5,12 @@ import QuickAdd from "./QuickAdd";
 import TopSpendingSection from "./TopSpendingSection";
 import { useFinance } from "@/context/FinanceContext";
 import LoadingSpinner from "./LoadingSpinner";
+import MonthPicker from "./MonthPicker";
 
 const Dashboard = () => {
   const { income, totalExpenses, transactions, budgets } = useFinance();
   const [loading, setLoading] = useState(transactions === undefined ? true : false);
-  console.log("Total Expenses in Dashboard:", totalExpenses);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex flex-col items-center justify-center gap-4">
@@ -22,8 +23,17 @@ const Dashboard = () => {
   }
 
   return (
-    <div>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Financial Overview</h1>
+          <p className="text-sm text-slate-500">Track your monthly performance and goals</p>
+        </div>
+        <MonthPicker />
+      </div>
+
       <div className="w-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-3">
+        {/* Total Balance Card */}
         <div
           className={`rounded-2xl p-6 text-white shadow-lg transition-all ${income - totalExpenses >= 0
             ? "bg-gradient-to-br from-slate-800 to-slate-900"
@@ -41,6 +51,7 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Monthly Income Card */}
         <div className="rounded-2xl p-6 shadow-sm border border-emerald-100 dark:border-emerald-900/20 transition-all bg-gradient-to-br from-emerald-400 to-emerald-500 text-white">
           <div className="flex items-center justify-between">
             <div>
@@ -52,6 +63,8 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
+
+        {/* Monthly Expenses Card */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-rose-100 dark:border-rose-900/20 transition-all bg-gradient-to-br from-rose-400 to-rose-500 text-white">
           <div className="flex items-center justify-between">
             <div>
@@ -64,11 +77,17 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <QuickAdd />
-        <TopSpendingSection />
+        <div className="lg:col-span-1 space-y-6">
+          <QuickAdd />
+        </div>
+        <div className="lg:col-span-2">
+          <TopSpendingSection />
+        </div>
       </div>
-    </div>);
+    </div>
+  );
 };
 
 export default Dashboard;

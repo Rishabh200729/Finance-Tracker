@@ -10,8 +10,6 @@ Transforming the tracker into a smart financial companion using agentic AI capab
 
 ### Core Objectives
 - **Natural Language Querying (FinScribe Chat)**: Speak to your data. Ask about trends, specific expenses, or budget status.
-- **Smart Anomalies & Alerts**: Proactive AI detection of unusual spending patterns (e.g., "Dining out is 30% higher than last month").
-- **AI-Powered Categorization**: Context-aware tagging of transactions based on historical patterns and vendor metadata.
 - **Budget Forecasting**: Predictive modeling to estimate month-end balance and budget headroom.
 - **Financial Strategy Agent**: Personalized suggestions for saving and optimizing cash flow.
 

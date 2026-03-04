@@ -16,6 +16,8 @@ interface Budget {
   category: string;
   spent: number;
   limit: number;
+  month: string;
+  year: string;
 }
 
 interface SavingsGoal {
@@ -42,6 +44,11 @@ interface FinanceContextType {
 
   income: number;
   updateIncome: (newIncome: number) => void;
+
+  selectedMonth: number;
+  setSelectedMonth: (month: number) => void;
+  selectedYear: number;
+  setSelectedYear: (year: number) => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -75,31 +82,30 @@ export function FinanceProvider({
       : 0
   );
 
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+
   // Derived state - these are computed from the raw data and will update when the raw data changes
   const totalExpenses = useMemo(() => {
-    const now = new Date();
-
     return transactions
       .filter((tx) => {
         const d = new Date(tx.date);
         return (
-          d.getMonth() === now.getMonth() &&
-          d.getFullYear() === now.getFullYear()
+          d.getMonth() === selectedMonth &&
+          d.getFullYear() === selectedYear
         );
       })
       .reduce((sum, tx) => sum + tx.amount, 0);
 
-  }, [transactions]);
+  }, [transactions, selectedMonth, selectedYear]);
 
 
   const topSpendingCategories = useMemo(() => {
-    const now = new Date();
-
     const monthlyTransactions = transactions.filter((tx) => {
       const d = new Date(tx.date);
       return (
-        d.getMonth() === now.getMonth() &&
-        d.getFullYear() === now.getFullYear()
+        d.getMonth() === selectedMonth &&
+        d.getFullYear() === selectedYear
       );
     });
 
@@ -120,33 +126,72 @@ export function FinanceProvider({
 
     return top;
 
-  }, [transactions]);
+  }, [transactions, selectedMonth, selectedYear]);
 
+
+  const MONTH_NAMES = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  const filteredBudgets = useMemo(() => {
+    return budgets.filter(b =>
+      b.month === MONTH_NAMES[selectedMonth] &&
+      b.year === selectedYear.toString()
+    );
+  }, [budgets, selectedMonth, selectedYear]);
 
   const totalBudgets = useMemo(() => {
-    return budgets.reduce((sum, b) => sum + b.limit, 0);
-  }, [budgets]);
+    return filteredBudgets.reduce((sum, b) => sum + b.limit, 0);
+  }, [filteredBudgets]);
 
 
   //  Mutations
   const addLocalTransaction = (newTx: Transaction) => {
     setTransactions((prev) => [newTx, ...prev]);
+
+    // Also update the budget spent amount locally if it exists for this month
+    const d = new Date(newTx.date);
+    const txMonth = MONTH_NAMES[d.getMonth()];
+    const txYear = d.getFullYear().toString();
+
+    setBudgets(prev => prev.map(b => {
+      if (b.category === newTx.category && b.month === txMonth && b.year === txYear) {
+        return { ...b, spent: b.spent + newTx.amount };
+      }
+      return b;
+    }));
   };
 
 
   const deleteLocalTransaction = (txId: number) => {
+    const txToDelete = transactions.find(t => t.id === txId);
+    if (txToDelete) {
+      const d = new Date(txToDelete.date);
+      const txMonth = MONTH_NAMES[d.getMonth()];
+      const txYear = d.getFullYear().toString();
+
+      setBudgets(prev => prev.map(b => {
+        if (b.category === txToDelete.category && b.month === txMonth && b.year === txYear) {
+          return { ...b, spent: Math.max(0, b.spent - txToDelete.amount) };
+        }
+        return b;
+      }));
+    }
     setTransactions((prev) => prev.filter((tx) => tx.id !== txId));
   };
 
 
   const updateLocalBudgets = (newBudget: Budget) => {
     setBudgets((prev) => {
-
-      const existingIndex = prev.findIndex((b) => b.id === newBudget.id);
+      const existingIndex = prev.findIndex((b) =>
+        b.category === newBudget.category &&
+        b.month === newBudget.month &&
+        b.year === newBudget.year
+      );
 
       if (existingIndex !== -1) {
         const updated = [...prev];
-        console.log(updated)
         updated[existingIndex] = newBudget;
         return updated;
       }
@@ -165,7 +210,7 @@ export function FinanceProvider({
     <FinanceContext.Provider
       value={{
         transactions,
-        budgets,
+        budgets: filteredBudgets,
         savingsGoals,
 
         addLocalTransaction,
@@ -177,7 +222,12 @@ export function FinanceProvider({
         totalBudgets,
 
         income,
-        updateIncome
+        updateIncome,
+
+        selectedMonth,
+        setSelectedMonth,
+        selectedYear,
+        setSelectedYear
       }}
     >
       {children}

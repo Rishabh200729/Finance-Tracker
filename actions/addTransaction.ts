@@ -25,12 +25,22 @@ const addTransaction = async (formData: FormData) => {
         date: new Date(),
       }).returning();
 
+      const MONTH_NAMES = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      const now = new Date();
+      const month = MONTH_NAMES[now.getMonth()];
+      const year = now.getFullYear().toString();
+
       const [newBudget] = await tx.update(budgets).set({
         spent: sql`${budgets.spent} + ${amount}`,
       }).where(
         and(
           eq(budgets.userId, id),
-          eq(budgets.category, category)
+          eq(budgets.category, category),
+          eq(budgets.month, month),
+          eq(budgets.year, year)
         )
       ).returning();
       return { success: true, newTransaction, newBudget };

@@ -91,7 +91,7 @@ const QuickAdd = () => {
           ) : "Add Transaction"}
         </button>
       </form >
-    </div >
+    </div>
   );
 };
 

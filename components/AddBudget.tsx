@@ -11,10 +11,19 @@ const AddBudget = ({ onClose }: { onClose: () => void }) => {
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const { budgets, totalBudgets, income, updateLocalBudgets } = useFinance();
+  const { budgets, totalBudgets, income, updateLocalBudgets, selectedMonth, selectedYear } = useFinance();
+
+  const MONTH_NAMES = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
 
   // Find if category exists (strictly for UX labels)
-  const isUpdating = budgets.some(b => b.category.toLowerCase() === category.trim().toLowerCase());
+  const isUpdating = budgets.some(b =>
+    b.category.toLowerCase() === category.trim().toLowerCase() &&
+    b.month === MONTH_NAMES[selectedMonth] &&
+    b.year === selectedYear.toString()
+  );
 
   // Auto clean error after 5 seconds
   useEffect(() => {
@@ -32,6 +41,8 @@ const AddBudget = ({ onClose }: { onClose: () => void }) => {
 
     const formData = new FormData(e.currentTarget as HTMLFormElement);
     formData.set("category", category.trim());
+    formData.set("month", MONTH_NAMES[selectedMonth]);
+    formData.set("year", selectedYear.toString());
 
     const res = await upsertBudget(formData);
 
