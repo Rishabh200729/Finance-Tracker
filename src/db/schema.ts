@@ -1,4 +1,4 @@
-import { integer, pgTable, varchar, timestamp, unique } from "drizzle-orm/pg-core";
+import { integer, pgTable, varchar, timestamp, unique, doublePrecision } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const users = pgTable('users', {
@@ -12,7 +12,7 @@ export const users = pgTable('users', {
 export const transactions = pgTable('transactions', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).notNull(),
-    amount: integer('amount').notNull(),
+    amount: doublePrecision('amount').notNull(),
     category: varchar('category', { length: 100 }).notNull(),
     date: timestamp('date').notNull(),
     description: varchar('description', { length: 255 }),
@@ -20,21 +20,21 @@ export const transactions = pgTable('transactions', {
 export const monthly_incomes = pgTable('monthly_incomes', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).notNull(),
-    amount: integer('amount').notNull(),
+    amount: doublePrecision('amount').notNull(),
     date: timestamp('date').notNull(),
-    month: varchar('month', { length: 100 }).notNull(),
-    year: varchar('year', { length: 100 }).notNull(),
+    month: varchar('month', { length: 20 }).notNull(),
+    year: varchar('year', { length: 4 }).notNull(),
 }, (table) => {
     return {
-        uniqueUserIncome: unique('user_income_unique').on(table.userId),
+        uniqueUserMonthYearIncome: unique('user_month_year_income_unique').on(table.userId, table.month, table.year),
     };
 });
 export const budgets = pgTable('budgets', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).notNull(),
     category: varchar('category', { length: 100 }).notNull(),
-    spent: integer('spent').notNull().default(0),
-    limit: integer('limit').notNull(),
+    spent: doublePrecision('spent').notNull().default(0),
+    limit: doublePrecision('limit').notNull(),
     month: varchar('month', { length: 20 }).notNull(),
     year: varchar('year', { length: 4 }).notNull(),
 }, (table) => {
@@ -46,8 +46,8 @@ export const savingsGoals = pgTable('savings_goals', {
     id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
     userId: integer('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }).notNull(),
     goalName: varchar('goal_name', { length: 255 }).notNull(),
-    targetAmount: integer('target_amount').notNull(),
-    currentAmount: integer('current_amount').notNull().default(0),
+    targetAmount: doublePrecision('target_amount').notNull(),
+    currentAmount: doublePrecision('current_amount').notNull().default(0),
     deadline: timestamp('deadline'),
 });
 

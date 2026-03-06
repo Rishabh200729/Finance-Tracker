@@ -1,16 +1,21 @@
 'use client'
-import { Search } from "lucide-react";
+import { Search, Upload } from "lucide-react";
 import { useFinance } from "@/context/FinanceContext";
 import { useState, useEffect } from "react";
 import TransactionItem from "@/components/TransactionItem";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { AnimatePresence, motion } from "framer-motion";
 import MonthPicker from "@/components/MonthPicker";
+import ImportDialog from "@/components/ImportDialog";
 
 const Page = () => {
   const { transactions, selectedMonth, selectedYear } = useFinance();
   const [searchTerm, setSearchTerm] = useState("");
   const [mounted, setMounted] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+
+  const { budgets } = useFinance();
+  const categories = Array.from(new Set(budgets.map(b => b.category)));
 
   useEffect(() => {
     setMounted(true);
@@ -69,7 +74,28 @@ const Page = () => {
             className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl text-sm dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
           />
         </div>
+
+        <button
+          onClick={() => setShowImport(true)}
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-2xl font-semibold transition shadow-md shadow-indigo-100 dark:shadow-none whitespace-nowrap"
+        >
+          <Upload className="w-4 h-4" />
+          Import
+        </button>
       </div>
+
+      <AnimatePresence>
+        {showImport && (
+          <ImportDialog
+            onClose={() => setShowImport(false)}
+            onComplete={() => {
+              // The page will revalidate due to server action
+              window.location.reload();
+            }}
+            categories={categories}
+          />
+        )}
+      </AnimatePresence>
 
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 overflow-hidden transition-colors">
         <div className="overflow-x-auto">
