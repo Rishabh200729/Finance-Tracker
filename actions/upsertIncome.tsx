@@ -15,7 +15,7 @@ const upsertIncome = async (currentIncome: number, data: FormData) => {
 
         const id = session.id;
         const newAmount = parseFloat(data.get('income') as string);
-        
+
         if (isNaN(newAmount)) {
             return { success: false, error: "Invalid income amount" };
         }
@@ -34,7 +34,7 @@ const upsertIncome = async (currentIncome: number, data: FormData) => {
                 year: currentYear,
             })
             .onConflictDoUpdate({
-                target: [monthly_incomes.userId], 
+                target: [monthly_incomes.userId, monthly_incomes.month, monthly_incomes.year],
                 set: {
                     amount: newAmount,
                     date: now,
@@ -44,8 +44,8 @@ const upsertIncome = async (currentIncome: number, data: FormData) => {
             })
             .returning();
 
-        return { 
-            success: true, 
+        return {
+            success: true,
             income: Number(incomeObj[0].amount) // Drizzle sometimes returns decimals as strings
         };
 
